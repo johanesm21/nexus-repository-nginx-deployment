@@ -1,3 +1,9 @@
+# this is the main deployment file
+# change everythings in this deployment file according to your needs
+# nexus will be running on port 8081 and nginx will be running on port 8082 with https
+# nexus data will be stored inside /nexus-data/ directory
+# nginx is using configuration file in /etc/nginx/conf.d/nexus_nginx.conf and ssl certs in /etc/ssl/certs/
+
 ---
 apiVersion: v1
 kind: Pod
