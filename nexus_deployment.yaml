@@ -1,0 +1,61 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nexus_nginx_environment
+data:
+  IP_ADDRESS: <YOUR_IP_ADDRESS>
+  SSL_CERTIFICATE_PATH: <YOUR_SSL_CERTIFICATE_PATH>
+  SSL_CERTIFICATE_KEY_PATH: <YOUR_SSL_CERTIFICATE_KEY_PATH>
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: nexus
+  name: nexus
+spec:
+  containers:
+    - name: nexus
+      image: sonatype/nexus3:latest
+      ports:
+        - containerPort: 8081
+          hostPort: 8081
+      volumeMounts:
+        - mountPath: /nexus-data/:Z
+          name: nexus_data
+      resources: {}
+    - name: nginx
+      image: nginx:latest
+      ports:
+        - containerPort: 8082
+          hostPort: 8082
+      envFrom:
+        - configMapRef:
+            name: nexus_nginx_environment
+      volumeMounts:
+        - mountPath: /etc/nginx/conf.d/nexus_nginx.conf:Z
+          name: nexus_nginx_configuration
+        - mountPath: /etc/ssl/certs/:Z
+          name: nexus_nginx_ssl_certificates
+        - mountPath: /etc/nginx/templates/nexus_nginx_template.template:Z
+          name: nexus_nginx_template
+      resources: {}
+  volumes:
+    - name: nexus_data
+      hostPath:
+        path: ./nexus/data
+        type: Directory
+    - name: nexus_nginx_configuration
+      hostPath:
+        path: ./nginx/nexus_nginx.conf
+        type: File
+    - name: nginx_ssl_certificates
+      hostPath:
+        path: ./nginx/certs/
+        type: Directory
+    - name: nexus_nginx_template
+      hostPath:
+        path: ./nginx/nexus_nginx_template.template
+        type: File
