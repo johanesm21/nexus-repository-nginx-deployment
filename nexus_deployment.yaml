@@ -1,11 +1,5 @@
 ---
 apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: nexus_nginx_environment
-
----
-apiVersion: v1
 kind: Pod
 metadata:
   labels:
@@ -19,7 +13,7 @@ spec:
         - containerPort: 8081
           hostPort: 8081
       volumeMounts:
-        - mountPath: /nexus-data/:Z
+        - mountPath: /nexus-data/:Z,U
           name: nexus_data
       resources: {}
     - name: nginx
@@ -27,16 +21,11 @@ spec:
       ports:
         - containerPort: 8082
           hostPort: 8082
-      envFrom:
-        - configMapRef:
-            name: nexus_nginx_environment
       volumeMounts:
         - mountPath: /etc/nginx/conf.d/nexus_nginx.conf:Z
           name: nexus_nginx_configuration
         - mountPath: /etc/ssl/certs/:Z
           name: nexus_nginx_ssl_certificates
-        - mountPath: /etc/nginx/templates/nexus_nginx_template.template:Z
-          name: nexus_nginx_template
       resources: {}
   volumes:
     - name: nexus_data
@@ -51,7 +40,3 @@ spec:
       hostPath:
         path: ./nginx/certs/
         type: Directory
-    - name: nexus_nginx_template
-      hostPath:
-        path: ./nginx/nexus_nginx_template.template
-        type: File
